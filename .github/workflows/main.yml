@@ -20,10 +20,9 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - uses: |
-        actions/checkout@v2
-        jetli/wasm-pack-action@v0.3.0
-      
+    - uses: actions/checkout@v2
+    - name: wasm-pack-action
+      uses: jetli/wasm-pack-action@v0.3.0
     # Runs a single command using the runners shell
     - name: build
       run: wasm-pack build client/src/lib/wasm/wasmlib/ --target web
