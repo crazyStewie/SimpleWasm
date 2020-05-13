@@ -25,7 +25,10 @@ jobs:
       uses: jetli/wasm-pack-action@v0.3.0
     # Runs a single command using the runners shell
     - name: build
-      run: wasm-pack build client/src/lib/wasm/wasmlib/ --target web
+      run: |
+        pushd client/src/lib/wasm/
+        pushd wasmlib && wasm-pack build --target web && popd
+        popd
 
     # Runs a set of commands using the runners shell
     - name: Deploy 🚀
