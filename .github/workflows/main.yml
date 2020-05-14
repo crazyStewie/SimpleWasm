@@ -41,6 +41,7 @@ jobs:
         mkdir dist/src/lib/wasm
         mkdir dist/src/lib/wasm/wasmlib/
         cp -r client/src/lib/wasm/wasmlib/pkg dist/src/lib/wasm/wasmlib
+        ls dist/src/lib/wasm/wasmlib/
     - name: Deploy 🚀
       uses: JamesIves/github-pages-deploy-action@releases/v3
       with:
