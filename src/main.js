@@ -12,14 +12,15 @@ class Simulation {
         this.scene = new THREE.Scene();
         this.physics = new wasmlib.PhysicsWorld();
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-        this.camera.position.z = 5;
-        this.camera.position.x = 5;
+        this.camera.position.z = 2;
+        this.camera.position.x = 2;
+        this.camera.position.y = 4;
         this.camera.lookAt(new THREE.Vector3(0,0,0));
         this.renderer = new THREE.WebGLRenderer();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(this.renderer.domElement);
 
-        let geometry = new THREE.CubeGeometry(0.5, 0.3, 0.4);
+        let geometry = new THREE.CubeGeometry(0.6, 0.2, 0.5);
         let material = new THREE.MeshBasicMaterial({color: 0xeeeeee});
 
         this.segway_base = new THREE.Mesh(geometry, material);
@@ -36,7 +37,7 @@ class Simulation {
         this.left_wheel.matrixAutoUpdate = false;
         this.scene.add(this.left_wheel);
 
-        geometry = new THREE.CylinderGeometry(0.25, 0.25, 0.2);
+        geometry = new THREE.CylinderGeometry(0.3, 0.3, 0.2, 64);
         material = new THREE.MeshBasicMaterial({color: 0x22ee22});
         let left_wheel_mesh = new THREE.Mesh(geometry, material);
         left_wheel_mesh.rotation.z = Math.PI/2
@@ -46,13 +47,25 @@ class Simulation {
         this.right_wheel.matrixAutoUpdate = false;
         this.scene.add(this.right_wheel);
 
-        geometry = new THREE.CylinderGeometry(0.25, 0.25, 0.2);
+        geometry = new THREE.CylinderGeometry(0.3, 0.3, 0.2, 64);
         let right_wheel_mesh = new THREE.Mesh(geometry, material);
         right_wheel_mesh.rotation.z = Math.PI/2
         this.right_wheel.add(right_wheel_mesh);
 
-        this.physics.set_max_left_motor_torque(10000);
-        this.physics.set_max_right_motor_torque(10000);
+        material = new THREE.MeshBasicMaterial({color : 0xeeeeee})
+        geometry = new THREE.CubeGeometry(0.3, 0.1, 0.1);
+        let wheel_decoration_left = new THREE.Mesh(geometry, material);
+        wheel_decoration_left.position.y = -0.15
+        left_wheel_mesh.add(wheel_decoration_left);
+
+        let wheel_decoration_right = new THREE.Mesh(geometry, material);
+        wheel_decoration_right.position.y = 0.15
+        right_wheel_mesh.add(wheel_decoration_right);
+        
+        this.physics.set_max_left_motor_torque(50);
+        this.physics.set_max_right_motor_torque(50);
+
+        this.scene.add(new THREE.GridHelper(100,100));
     }
 
     update() {
@@ -60,6 +73,8 @@ class Simulation {
         let position = this.physics.get_part_position(wasmlib.Parts.BASE);
         let rotation = this.physics.get_part_rotation(wasmlib.Parts.BASE);
         this.segway_base.matrix.compose(position, rotation, new THREE.Vector3(1,1,1));
+
+        this.camera.lookAt(position);
 
         position = this.physics.get_part_position(wasmlib.Parts.HANDLE);
         rotation = this.physics.get_part_rotation(wasmlib.Parts.HANDLE);
@@ -83,8 +98,8 @@ class Simulation {
         matrix.extractBasis(basis_x, basis_y, basis_z);
         let inclination = - Math.asin(basis_z.y);
 
-        this.physics.set_right_motor_target_speed(100*inclination + 2)
-        this.physics.set_left_motor_target_speed(100*inclination)
+        this.physics.set_right_motor_target_speed(inclination*50 + 2)
+        this.physics.set_left_motor_target_speed(inclination*50 - 2)
     }
 }
 
