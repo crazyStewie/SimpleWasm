@@ -40,7 +40,9 @@ jobs:
         cp client/src/lib/*.js dist/src/lib/
         mkdir dist/src/lib/wasm
         mkdir dist/src/lib/wasm/wasmlib/
-        cp -r client/src/lib/wasm/wasmlib/pkg dist/src/lib/wasm/wasmlib
+        mkdir dist/src/lib/wasm/wasmlib/pkg
+        cp client/src/lib/wasm/wasmlib/pkg/* dist/src/lib/wasm/wasmlib/pkg/
+        ls dist/src/lib/wasm/wasmlib/pkg/
     - name: Deploy 🚀
       uses: JamesIves/github-pages-deploy-action@releases/v3
       with:
