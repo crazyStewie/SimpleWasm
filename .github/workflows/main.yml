@@ -37,7 +37,7 @@ jobs:
         mkdir dist/src
         cp client/src/*.js dist/src
         mkdir dist/src/lib
-        cp client/src/lib/*.js dist.src
+        cp client/src/lib/*.js dist/src/lib/
         mkdir dist/src/lib/wasm
         mkdir dist/src/lib/wasm/wasmlib/
         cp -r client/src/lib/wasm/wasmlib/pkg dist/src/lib/wasm/wasmlib
