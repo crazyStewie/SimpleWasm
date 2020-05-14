@@ -51,10 +51,8 @@ class Simulation {
         right_wheel_mesh.rotation.z = Math.PI/2
         this.right_wheel.add(right_wheel_mesh);
 
-        this.physics.set_max_left_motor_torque(1000);
-        this.physics.set_max_right_motor_torque(1000);
-        this.physics.set_left_motor_target_speed(2);
-        this.physics.set_right_motor_target_speed(4);
+        this.physics.set_max_left_motor_torque(10000);
+        this.physics.set_max_right_motor_torque(10000);
     }
 
     update() {
@@ -74,7 +72,19 @@ class Simulation {
         position = this.physics.get_part_position(wasmlib.Parts.RIGHT_WHEEL);
         rotation = this.physics.get_part_rotation(wasmlib.Parts.RIGHT_WHEEL);
         this.right_wheel.matrix.compose(position, rotation, new THREE.Vector3(1,1,1));
-        
+
+        position = this.physics.get_part_position(wasmlib.Parts.HANDLE);
+        rotation = this.physics.get_part_rotation(wasmlib.Parts.HANDLE);
+
+        let matrix = new THREE.Matrix4().compose(position, rotation, new THREE.Vector3(1,1,1));
+        let basis_x = new THREE.Vector3();
+        let basis_y = new THREE.Vector3();
+        let basis_z = new THREE.Vector3();
+        matrix.extractBasis(basis_x, basis_y, basis_z);
+        let inclination = - Math.asin(basis_z.y);
+
+        this.physics.set_right_motor_target_speed(100*inclination + 2)
+        this.physics.set_left_motor_target_speed(100*inclination)
     }
 }
 

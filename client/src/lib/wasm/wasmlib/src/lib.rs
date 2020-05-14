@@ -121,7 +121,7 @@ impl PhysicsWorld {
         colliders.insert(body_handle_collider);
         let wheel_shape = ncollide3d::shape::ShapeHandle::new(
             ncollide3d::shape::ConvexHull::try_from_points(
-                &ncollide3d::shape::Cylinder::new(0.1, 0.25).to_trimesh(32).coords
+                &ncollide3d::shape::Cylinder::new(0.1, 0.25).to_trimesh(128).coords
             ).unwrap()
         );
         let wheel_collider_desc = nphysics3d::object::ColliderDesc::new(wheel_shape)
