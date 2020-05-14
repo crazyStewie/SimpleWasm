@@ -13,7 +13,7 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
-  build:
+  build and deploy:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
@@ -29,11 +29,21 @@ jobs:
         pushd client/src/lib/wasm/
         pushd wasmlib && wasm-pack build --target web && popd
         popd
-
     # Runs a set of commands using the runners shell
+    - name: prepare
+      run : |
+        mkdir dist
+        cp client/*.html dist
+        mkdir dist/src
+        cp client/src/*.js dist/src
+        mkdir dist/src/lib
+        cp client/src/lib/*.js dist.src
+        mkdir dist/src/lib/wasm
+        mkdir dist/src/lib/wasm/wasmlib/
+        cp -r client/src/lib/wasm/wasmlib/pkg dist/src/lib/wasm/wasmlib
     - name: Deploy 🚀
       uses: JamesIves/github-pages-deploy-action@releases/v3
       with:
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           BRANCH: gh-pages # The branch the action should deploy to.
-          FOLDER: client # The folder the action should deploy.
+          FOLDER: dist # The folder the action should deploy.
