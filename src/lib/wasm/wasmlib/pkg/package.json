@@ -1,0 +1,15 @@
+{
+  "name": "wasmlib",
+  "collaborators": [
+    "Joel Silva <joelgbsilva@gmail.com>"
+  ],
+  "version": "0.1.0",
+  "files": [
+    "wasmlib_bg.wasm",
+    "wasmlib.js",
+    "wasmlib.d.ts"
+  ],
+  "module": "wasmlib.js",
+  "types": "wasmlib.d.ts",
+  "sideEffects": false
+}
