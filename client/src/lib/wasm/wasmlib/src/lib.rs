@@ -16,9 +16,8 @@ static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 #[wasm_bindgen]
 pub enum Parts{
     BASE = 0,
-    HANDLE = 1 ,
-    LEFT_WHEEL = 2,
-    RIGHT_WHEEL = 3,
+    LEFT_WHEEL = 1,
+    RIGHT_WHEEL = 2,
 }
 
 #[wasm_bindgen(raw_module = "../../../three.module.js")]
@@ -75,16 +74,11 @@ impl PhysicsWorld {
             .build(nphysics3d::object::BodyPartHandle(ground, 0));
         colliders.insert(ground_collider);
 
-        let free_joint = nphysics3d::joint::FreeJoint::new(na::Isometry3::identity());
+        let free_joint = nphysics3d::joint::FreeJoint::new(na::Isometry3::new(na::Vector3::y()*4.0, na::zero()));
         let mut segway_desc = nphysics3d::object::MultibodyDesc::new(free_joint)
-            .name("BodyBase".to_owned())
-            .body_shift(na::Vector3::new(0.0, 0.3, 0.0));
-        
-        let fixed_joint = nphysics3d::joint::FixedJoint::new(na::Isometry3::identity());
-        let handle_desc = segway_desc.add_child(fixed_joint);
-        handle_desc.set_name("BodyHandle".to_owned());
-        handle_desc.set_parent_shift(na::Vector3::new(0.0, 0.0, 0.0));
-        handle_desc.set_body_shift(na::Vector3::new(0.0, 0.7, 0.2));
+            //.parent_shift(na::Vector3::y()*0.9)
+            .name("BodyBase".to_owned());
+            //.body_shift(na::Vector3::y()*0.9);
         
         let mut left_axis = nphysics3d::joint::RevoluteJoint::new(na::Vector3::x_axis(), 0.0);
         left_axis.enable_angular_motor();
@@ -92,7 +86,8 @@ impl PhysicsWorld {
         left_axis.disable_min_angle();
         let left_wheel_desc = segway_desc.add_child(left_axis);
         left_wheel_desc.set_name("LeftWheel".to_owned());
-        left_wheel_desc.set_body_shift(na::Vector3::x()*(-0.45));
+        left_wheel_desc.set_body_shift(na::Vector3::x()*(-0.5));
+        left_wheel_desc.set_parent_shift(na::Vector3::y()*-0.6);
         
         let mut right_axis = nphysics3d::joint::RevoluteJoint::new(na::Vector3::x_axis(), 0.0);
         right_axis.enable_angular_motor();
@@ -100,27 +95,38 @@ impl PhysicsWorld {
         right_axis.disable_min_angle();
         let right_wheel_desc = segway_desc.add_child(right_axis);
         right_wheel_desc.set_name("RightWheel".to_owned());
-        right_wheel_desc.set_body_shift(na::Vector3::x()*(0.45));
-        
+        right_wheel_desc.set_body_shift(na::Vector3::x()*(0.5));
+        right_wheel_desc.set_parent_shift(na::Vector3::y()*-0.6);
+
         let segway_handle = bodies.insert(segway_desc.build());
         let base = nphysics3d::object::BodyPartHandle(segway_handle, Parts::BASE as usize);
-        let handle = nphysics3d::object::BodyPartHandle(segway_handle, Parts::HANDLE as usize);
         let left_wheel = nphysics3d::object::BodyPartHandle(segway_handle, Parts::LEFT_WHEEL as usize);
         let right_wheel = nphysics3d::object::BodyPartHandle(segway_handle, Parts::RIGHT_WHEEL as usize);
         
-        let body_base_shape =ncollide3d::shape::ShapeHandle::new( ncollide3d::shape::Cuboid::new(na::Vector3::new(0.58, 0.18, 0.48)/2.0));
-        let body_base_collider = nphysics3d::object::ColliderDesc::new(body_base_shape)
-            //.margin(0.1)
+        let body_base_shape =ncollide3d::shape::ShapeHandle::new(
+            ncollide3d::shape::ConvexHull::try_from_points(
+                &ncollide3d::shape::Cone::new(0.6, 0.4).to_trimesh(16).coords
+            ).unwrap()
+        );
+        let body_head_shape = ncollide3d::shape::ShapeHandle::new(ncollide3d::shape::Ball::new(0.3));
+
+        let body_shape = ncollide3d::shape::ShapeHandle::new(
+            ncollide3d::shape::Compound::new(vec![
+                (na::Isometry3::new(na::zero(), na::zero()), body_base_shape),
+                (na::Isometry3::new(na::Vector3::y()*0.6, na::zero()), body_head_shape),
+            ])
+        );
+        let body_collider = nphysics3d::object::ColliderDesc::new(body_shape)
+            //.translation(na::Vector3::y()*0.6)
             .density(1.0)
             .build(base);
-        colliders.insert(body_base_collider);
-
-        let body_handle_shape = ncollide3d::shape::ShapeHandle::new(ncollide3d::shape::Cuboid::new(na::Vector3::new(0.08, 1.18, 0.08)/2.0));
-        let body_handle_collider = nphysics3d::object::ColliderDesc::new(body_handle_shape)
-            .density(1.0)
-            //.translation(na::Vector3::new(0.0, 0.6, 0.2))
-            .build(handle);
-        colliders.insert(body_handle_collider);
+        colliders.insert(body_collider);
+        //let body_handle_shape = ncollide3d::shape::ShapeHandle::new(ncollide3d::shape::Cuboid::new(na::Vector3::new(0.08, 1.18, 0.08)/2.0));
+        //let body_handle_collider = nphysics3d::object::ColliderDesc::new(body_handle_shape)
+        //    .density(1.0)
+        //    //.translation(na::Vector3::new(0.0, 0.6, 0.2))
+        //    .build(handle);
+        //colliders.insert(body_handle_collider);
         let wheel_shape = ncollide3d::shape::ShapeHandle::new(
             ncollide3d::shape::ConvexHull::try_from_points(
                 &ncollide3d::shape::Cylinder::new(0.09, 0.29).to_trimesh(128).coords
