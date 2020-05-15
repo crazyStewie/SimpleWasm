@@ -4,7 +4,6 @@
 */
 export enum Parts {
   BASE,
-  HANDLE,
   LEFT_WHEEL,
   RIGHT_WHEEL,
 }

@@ -187,7 +187,7 @@ function handleError(f) {
 }
 /**
 */
-export const Parts = Object.freeze({ BASE:0,HANDLE:1,LEFT_WHEEL:2,RIGHT_WHEEL:3, });
+export const Parts = Object.freeze({ BASE:0,LEFT_WHEEL:1,RIGHT_WHEEL:2, });
 /**
 */
 export class PhysicsWorld {

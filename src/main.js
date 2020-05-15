@@ -20,18 +20,18 @@ class Simulation {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(this.renderer.domElement);
 
-        let geometry = new THREE.CubeGeometry(0.6, 0.2, 0.5);
+        let geometry = new THREE.ConeGeometry(0.4, 1.2, 16);
         let material = new THREE.MeshBasicMaterial({color: 0xeeeeee});
 
         this.segway_base = new THREE.Mesh(geometry, material);
         this.segway_base.matrixAutoUpdate = false;
         this.scene.add(this.segway_base);
 
-        geometry = new THREE.CubeGeometry(0.1, 1.2, 0.1);
-        material = new THREE.MeshBasicMaterial({color: 0xee2222});
-        this.segway_handle = new THREE.Mesh(geometry, material);
-        this.segway_handle.matrixAutoUpdate = false;
-        this.scene.add(this.segway_handle);
+        geometry = new THREE.SphereGeometry(0.3, 16, 8);
+        material = new THREE.MeshBasicMaterial({color: 0x2222ee});
+        let head = new THREE.Mesh(geometry, material);
+        head.position.y = 0.6;
+        this.segway_base.add(head);
 
         this.left_wheel = new THREE.Object3D();
         this.left_wheel.matrixAutoUpdate = false;
@@ -76,10 +76,6 @@ class Simulation {
 
         this.camera.lookAt(position);
 
-        position = this.physics.get_part_position(wasmlib.Parts.HANDLE);
-        rotation = this.physics.get_part_rotation(wasmlib.Parts.HANDLE);
-        this.segway_handle.matrix.compose(position, rotation, new THREE.Vector3(1,1,1));
-
         position = this.physics.get_part_position(wasmlib.Parts.LEFT_WHEEL);
         rotation = this.physics.get_part_rotation(wasmlib.Parts.LEFT_WHEEL);
         this.left_wheel.matrix.compose(position, rotation, new THREE.Vector3(1,1,1));
@@ -88,18 +84,8 @@ class Simulation {
         rotation = this.physics.get_part_rotation(wasmlib.Parts.RIGHT_WHEEL);
         this.right_wheel.matrix.compose(position, rotation, new THREE.Vector3(1,1,1));
 
-        position = this.physics.get_part_position(wasmlib.Parts.HANDLE);
-        rotation = this.physics.get_part_rotation(wasmlib.Parts.HANDLE);
-
-        let matrix = new THREE.Matrix4().compose(position, rotation, new THREE.Vector3(1,1,1));
-        let basis_x = new THREE.Vector3();
-        let basis_y = new THREE.Vector3();
-        let basis_z = new THREE.Vector3();
-        matrix.extractBasis(basis_x, basis_y, basis_z);
-        let inclination = - Math.asin(basis_z.y);
-
-        this.physics.set_right_motor_target_speed(inclination*50 + 2)
-        this.physics.set_left_motor_target_speed(inclination*50 - 2)
+        this.physics.set_left_motor_target_speed(2);
+        this.physics.set_right_motor_target_speed(1);
     }
 }
 
